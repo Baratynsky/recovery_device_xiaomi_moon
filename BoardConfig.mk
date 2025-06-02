@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Device Path
-DEVICE_PATH := device/xiaomi/pond
+DEVICE_PATH := device/xiaomi/moon
 
 # For building with minimal manifest
 ALLOW_MISSING_DEPENDENCIES := true
@@ -27,10 +27,10 @@ TARGET_2ND_CPU_VARIANT := $(TARGET_CPU_VARIANT)
 TARGET_2ND_CPU_VARIANT_RUNTIME := $(TARGET_CPU_VARIANT)
 
 # Assertation
-TARGET_OTA_ASSERT_DEVICE := lake,lake_p,pond,pond_p
+TARGET_OTA_ASSERT_DEVICE := moon,moon_gl,moon_p,tides,tides_gl,tides_p
 
 # Bootloader
-TARGET_BOOTLOADER_BOARD_NAME := lake
+TARGET_BOOTLOADER_BOARD_NAME := moon
 TARGET_NO_BOOTLOADER := true
 TARGET_USES_UEFI := true
 
@@ -103,8 +103,8 @@ TARGET_SYSTEM_PROP += $(DEVICE_PATH)/system.prop
 BOARD_BUILD_SYSTEM_ROOT_IMAGE := false
 
 # Init
-TARGET_INIT_VENDOR_LIB := //$(DEVICE_PATH):libinit_pond
-TARGET_RECOVERY_DEVICE_MODULES := libinit_pond
+TARGET_INIT_VENDOR_LIB := //$(DEVICE_PATH):libinit_moon
+TARGET_RECOVERY_DEVICE_MODULES := libinit_moon
 
 # Recovery
 BOARD_HAS_NO_SELECT_BUTTON := true
@@ -185,7 +185,6 @@ TWRP_INCLUDE_LOGCAT := true
 
 TW_LOAD_VENDOR_BOOT_MODULES := true
 TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
-TW_LOAD_VENDOR_MODULES := "mt6358-accdet.ko xiaomi_touch.ko lct_tp.ko nt36528_spi.ko nt36528_spi.ko ft8057m_spi.ko ft8057p_spi.ko icnl9916_spi.ko"
 
 # Maintainer
 TW_DEVICE_VERSION := wulan17

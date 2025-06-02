@@ -3,6 +3,11 @@ import /init.vibrator.rc
 
 on init
     export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw:/system/lib64/hw
+	insmod /vendor/lib/modules/alspshub.ko
+	insmod /vendor/lib/modules/alsps_common.ko
+	insmod /vendor/lib/modules/tpd_notify.ko
+	insmod /vendor/lib/modules/xiaomi_touch.ko
+	insmod /vendor/lib/modules/focaltech_tp.ko
 
 on late-fs
     # Wait for keymaster
