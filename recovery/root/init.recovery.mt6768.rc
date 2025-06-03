@@ -1,13 +1,20 @@
 import /init.microtrust.rc
+import /init.recovery.usb.rc
 import /init.vibrator.rc
 
 on init
     export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw:/system/lib64/hw
-	insmod /vendor/lib/modules/alspshub.ko
-	insmod /vendor/lib/modules/alsps_common.ko
-	insmod /vendor/lib/modules/tpd_notify.ko
+	setprop sys.usb.configfs 1
+    setprop sys.usb.controller "musb-hdrc"
+    setprop sys.usb.ffs.aio_compat 0
 	insmod /vendor/lib/modules/xiaomi_touch.ko
-	insmod /vendor/lib/modules/focaltech_tp.ko
+    insmod /vendor/lib/modules/alspshub.ko
+    insmod /vendor/lib/modules/alsps_common.ko
+    insmod /vendor/lib/modules/tpd_notify.ko
+    insmod /lib/modules/mtk_disp_notify.ko
+    insmod /vendor/lib/modules/hq_notifier.ko
+    insmod /lib/modules/panel-n19a-42-03-0b-dsc-vdo.ko
+    insmod /vendor/lib/modules/focaltech_tp.ko
 
 on late-fs
     # Wait for keymaster
