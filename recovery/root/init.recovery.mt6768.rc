@@ -47,14 +47,11 @@ on post-fs
     chown root root /sys/class/gpio/gpio42/value
 
     # Загрузка модулей ядра
-    insmod /lib/modules/xiaomi_touch.ko
-    insmod /lib/modules/alspshub.ko
-    insmod /lib/modules/alsps_common.ko
-    insmod /lib/modules/tpd_notify.ko
-    insmod /lib/modules/mtk_disp_notify.ko
-    insmod /lib/modules/hq_notifier.ko
-    insmod /lib/modules/panel-n19a-42-03-0b-dsc-vdo.ko
-    insmod /lib/modules/focaltech_ft8725_hx.ko
+    insmod /vendor/lib/modules/xiaomi_touch.ko
+    insmod /vendor/lib/modules/alspshub.ko
+    insmod /vendor/lib/modules/alsps_common.ko
+    insmod /vendor/lib/modules/tpd_notify.ko
+    insmod /vendor/lib/modules/focaltech_tp.ko
 
 on late-fs
     # Ждём keymaster
