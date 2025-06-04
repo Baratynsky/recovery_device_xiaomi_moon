@@ -207,7 +207,7 @@ TWRP_INCLUDE_LOGCAT := true
 # Modules
 TW_LOAD_VENDOR_BOOT_MODULES := true
 TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
-TW_LOAD_VENDOR_MODULES := $(shell echo \"$(shell ls $(DEVICE_PATH)/recovery/root/vendor/lib/modules/1.1)\")
+TW_LOAD_VENDOR_MODULES := $(shell echo \"$(shell ls $(DEVICE_PATH)/recovery/root/vendor/lib/modules/6.6)\")
 
 # Maintainer
-TW_DEVICE_VERSION := wulan17
+TW_DEVICE_VERSION :=
