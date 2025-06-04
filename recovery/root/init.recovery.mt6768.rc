@@ -46,12 +46,11 @@ on post-fs
     chmod 0660 /sys/class/gpio/gpio42/value
     chown root root /sys/class/gpio/gpio42/value
 
-    # Загрузка модулей ядра
-    insmod /vendor/lib/modules/xiaomi_touch.ko
-    insmod /vendor/lib/modules/alspshub.ko
-    insmod /vendor/lib/modules/alsps_common.ko
-    insmod /vendor/lib/modules/tpd_notify.ko
-    insmod /vendor/lib/modules/focaltech_tp.ko
+on boot
+    chown system system /dev/xiaomi-touch
+    chmod 0664 /dev/xiaomi-touch
+    chown system system /sys/class/touch/tp_dev/fod_status
+    chmod 0664 /sys/class/touch/tp_dev/fod_status
 
 on late-fs
     # Ждём keymaster
@@ -118,4 +117,5 @@ on property:twrp.modules.loaded=true
 # Запуск HAL
 on boot
     start boot-hal-1-2
+    setprop sys.usb.config adb
     start health-hal-2-1
