@@ -58,8 +58,8 @@ on late-fs
 on property:ro.crypto.state=encrypted && property:ro.crypto.type=file
     install_keyring
 
-service vendor.gatekeeper-1-0 /vendor/bin/hw/android.hardware.gatekeeper@1.0-service
-    interface android.hardware.gatekeeper@1.0::IGatekeeper default
+service vendor.gatekeeper /vendor/bin/hw/android.hardware.gatekeeper-service.beanpod
+    class hal
     user root
     group root
     disabled
@@ -79,27 +79,27 @@ on property:crypto.ready=1
 
 on property:hwservicemanager.ready=true
     start vendor.keymaster-4-1-beanpod
-    start vendor.gatekeeper-1-0
+    start vendor.gatekeeper
 
 on property:ro.crypto.state=unsupported
     stop teei_daemon
     stop vendor.keymaster-4-1-beanpod
-    stop vendor.gatekeeper-1-0
+    stop vendor.gatekeeper
 
 on property:ro.crypto.state=unencrypted
     stop teei_daemon
     stop vendor.keymaster-4-1-beanpod
-    stop vendor.gatekeeper-1-0
+    stop vendor.gatekeeper
 
 on property:twrp.decrypt.done=true
     stop teei_daemon
     stop vendor.keymaster-4-1-beanpod
-    stop vendor.gatekeeper-1-0
+    stop vendor.gatekeeper
 
 on property:crypto.ready=0
     stop teei_daemon
     stop vendor.keymaster-4-1-beanpod
-    stop vendor.gatekeeper-1-0
+    stop vendor.gatekeeper
 
 on property:twrp.modules.loaded=true
     start vendor.vibrator-default
