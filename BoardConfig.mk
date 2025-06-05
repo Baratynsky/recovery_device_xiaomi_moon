@@ -203,7 +203,7 @@ TWRP_INCLUDE_LOGCAT := true
 # Modules
 TW_LOAD_VENDOR_BOOT_MODULES := true
 TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
-TW_LOAD_VENDOR_MODULES := $(shell echo \"$(shell ls $(DEVICE_PATH)/recovery/root/vendor/lib/modules)\")
+TW_LOAD_VENDOR_MODULES := "hwmon.ko mtk_ppm_v3.ko alspshub.ko alsps_common.ko tpd_notify.ko xiaomi_touch.ko focaltech_tp.ko"
 
 # Maintainer
 TW_DEVICE_VERSION :=
