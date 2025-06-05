@@ -69,9 +69,6 @@ BOARD_MKBOOTIMG_ARGS += \
 BOARD_KERNEL_SEPARATED_DTBO := true
 BOARD_RAMDISK_USE_LZ4 := true
 
-# VNDK
-BOARD_VNDK_VERSION := current
-
 # AVB
 BOARD_AVB_ENABLE := true
 
@@ -108,7 +105,6 @@ BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := f2fs
 BOARD_ROOT_EXTRA_FOLDERS += metadata cust
 TARGET_USERIMAGES_USE_EXT4 := true
 TARGET_USERIMAGES_USE_F2FS := true
-TARGET_USES_MKE2FS := true
 
 # Hardware
 BOARD_USES_MTK_HARDWARE := true
@@ -207,7 +203,7 @@ TWRP_INCLUDE_LOGCAT := true
 # Modules
 TW_LOAD_VENDOR_BOOT_MODULES := true
 TW_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
-TW_LOAD_VENDOR_MODULES := $(shell echo \"$(shell ls $(DEVICE_PATH)/recovery/root/vendor/lib/modules/1.1)\")
+TW_LOAD_VENDOR_MODULES := $(shell echo \"$(shell ls $(DEVICE_PATH)/recovery/root/vendor/lib/modules)\")
 
 # Maintainer
 TW_DEVICE_VERSION :=
