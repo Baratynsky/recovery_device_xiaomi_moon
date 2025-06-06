@@ -1,4 +1,5 @@
 import /init.microtrust.rc
+import /init.sensor_1_0.rc
 import /init.recovery.usb.rc
 import /init.vibrator.rc
 
@@ -13,43 +14,73 @@ on init
     setprop sys.usb.controller "musb-hdrc"
     setprop sys.usb.ffs.aio_compat 0
 
+    # Permissions for device buses and GPIO from your original file
     chmod 0660 /dev/bus/i2c-0
     chown root root /dev/bus/i2c-0
-
     chmod 0660 /sys/class/gpio/export
     chmod 0660 /sys/class/gpio/unexport
     chown root root /sys/class/gpio/export
     chown root root /sys/class/gpio/unexport
-
     chmod 0660 /sys/class/regulator/
     chown root root /sys/class/regulator/
 
 on post-fs
-    start create_pl_dev
+    # Create a temporary TEE working directory in RAM to bypass dependency on encrypted /data
+    # This block replicates the structure that init.microtrust.rc wants to create in /data/vendor/thh
+    mkdir /tmp/thh 0755 system system
+    mkdir /tmp/thh/system 0755 system system
+    mkdir /tmp/thh/tee_00 0755 system system
+    mkdir /tmp/thh/tee_01 0755 system system
+    mkdir /tmp/thh/tee_02 0755 system system
+    mkdir /tmp/thh/tee_03 0755 system system
+    mkdir /tmp/thh/tee_04 0755 system system
+    mkdir /tmp/thh/tee_05 0755 system system
+    mkdir /tmp/thh/tee_06 0755 system system
+    mkdir /tmp/thh/tee_07 0755 system system
+    mkdir /tmp/thh/tee 0755 system system
+    mkdir /tmp/thh/tee/tas 0755 system system
+    mkdir /tmp/thh/ta 0755 system system
+    mkdir /tmp/thh/tee_log 0755 system system
+    
+    # Create the mount point on /data and bind the temporary directory to it
+    mkdir /data/vendor 0771 system system
+    mount -o bind /tmp/thh /data/vendor/thh
 
+    # Now that all dependencies are met, start TEE services
+    # The 'on fs' trigger from the imported microtrust.rc will start teei_daemon
+    start vendor.mrmd
+
+    # Start the keybox check service which depends on TEE
+    start beanpod_check_keybox_service
+
+    # Original post-fs commands
+    start create_pl_dev
     write /sys/class/regulator/regulator.29/enabled 1
     write /sys/class/regulator/regulator.39/enabled 1
-
     write /sys/class/gpio/gpio152/value 0
     sleep 0.1
     write /sys/class/gpio/gpio152/value 1
     sleep 0.1
-
     chmod 0660 /sys/class/gpio/gpio42/value
     chown root root /sys/class/gpio/gpio42/value
 
 on boot
+    # Permissions for touch and display features
     chown system system /dev/xiaomi-touch
     chmod 0664 /dev/xiaomi-touch
     chown system system /sys/class/touch/tp_dev/fod_status
     chmod 0664 /sys/class/touch/tp_dev/fod_status
-	
-	chown system system /sys/class/touch/touch_dev/palm_sensor
+    chown system system /sys/class/touch/touch_dev/palm_sensor
     chown system system /proc/touchscreen/proximity_switch
     chown system system /proc/touchscreen/store_data_proximity
     chmod 0664 /sys/class/touch/touch_dev/palm_sensor
     chmod 0664 /proc/touchscreen/proximity_switch
     chmod 0664 /proc/touchscreen/store_data_proximity
+
+    # Start essential HALs that don't depend on hwservicemanager
+    start boot-hal-1-2
+    setprop sys.usb.config adb
+    start health-hal-2-1
 
 on late-fs
     exec_start wait_for_keymaster
@@ -58,10 +89,59 @@ on late-fs
 on property:ro.crypto.state=encrypted && property:ro.crypto.type=file
     install_keyring
 
-service vendor.gatekeeper /vendor/bin/hw/android.hardware.gatekeeper-service.beanpod
-    class hal
+on property:hwservicemanager.ready=true
+    # Start all required hardware services here
+    start vendor.sensors-hal-multihal
+    start vendor.keymaster-4-1-beanpod
+    start vendor.gatekeeper
+
+on property:twrp.modules.loaded=true
+    start vendor.vibrator-default
+
+# Stop services when decryption is done or not needed
+on property:ro.crypto.state=unsupported
+    stop teei_daemon
+    stop vendor.mrmd
+    stop vendor.keymaster-4-1-beanpod
+    stop vendor.gatekeeper
+
+on property:ro.crypto.state=unencrypted
+    stop teei_daemon
+    stop vendor.mrmd
+    stop vendor.keymaster-4-1-beanpod
+    stop vendor.gatekeeper
+
+on property:twrp.decrypt.done=true
+    stop teei_daemon
+    stop vendor.mrmd
+    stop vendor.keymaster-4-1-beanpod
+    stop vendor.gatekeeper
+
+on property:crypto.ready=0
+    stop teei_daemon
+    stop vendor.mrmd
+    stop vendor.keymaster-4-1-beanpod
+    stop vendor.gatekeeper
+
+# --------------------------------- #
+# SERVICE DEFINITIONS               #
+# --------------------------------- #
+# NOTE: teei_daemon service is now handled by the 'import /init.microtrust.rc' command at the top.
+
+# TEE Services
+service vendor.mrmd /vendor/bin/mrmd_isee
+    class main
+    user system
+    group system
+    disabled
+    seclabel u:r:recovery:s0
+
+# Decryption HALs
+service beanpod_check_keybox_service /vendor/bin/bp_kmsetkey_ca -c
+    class late_start
     user root
     group root
+    oneshot
     disabled
     seclabel u:r:recovery:s0
 
@@ -70,41 +150,24 @@ service vendor.keymaster-4-1-beanpod /vendor/bin/hw/android.hardware.keymaster@4
     interface android.hardware.keymaster@4.1::IKeymasterDevice default
     user root
     group root drmrpc
-    disabled
     oneshot
+    disabled
     seclabel u:r:recovery:s0
 
-on property:crypto.ready=1
-    start vendor.keymaster-4-1-beanpod
+service vendor.gatekeeper /vendor/bin/hw/android.hardware.gatekeeper-service.beanpod
+    class hal
+    user root
+    group root
+    disabled
+    seclabel u:r:recovery:s0
 
-on property:hwservicemanager.ready=true
-    start vendor.keymaster-4-1-beanpod
-    start vendor.gatekeeper
-
-on property:ro.crypto.state=unsupported
-    stop teei_daemon
-    stop vendor.keymaster-4-1-beanpod
-    stop vendor.gatekeeper
-
-on property:ro.crypto.state=unencrypted
-    stop teei_daemon
-    stop vendor.keymaster-4-1-beanpod
-    stop vendor.gatekeeper
-
-on property:twrp.decrypt.done=true
-    stop teei_daemon
-    stop vendor.keymaster-4-1-beanpod
-    stop vendor.gatekeeper
-
-on property:crypto.ready=0
-    stop teei_daemon
-    stop vendor.keymaster-4-1-beanpod
-    stop vendor.gatekeeper
-
-on property:twrp.modules.loaded=true
-    start vendor.vibrator-default
-
-on boot
-    start boot-hal-1-2
-    setprop sys.usb.config adb
-    start health-hal-2-1
+# Other HALs
+service vendor.sensors-hal-multihal /vendor/bin/hw/android.hardware.sensors-service.multihal
+    class hal
+    user system
+    group system wakelock context_hub input uhid
+    task_profiles ServiceCapacityLow
+    capabilities BLOCK_SUSPEND
+    rlimit rtprio 10 10
+    disabled
+    seclabel u:r:recovery:s0
