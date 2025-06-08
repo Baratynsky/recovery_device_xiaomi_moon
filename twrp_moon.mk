@@ -16,3 +16,17 @@ PRODUCT_MANUFACTURER := Xiaomi
 # Build Fingerprint
 PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
     ro.vendor.build.fingerprint=Redmi/moon_ru/moon:15/AP3A.240905.015.A2/OS2.0.5.0.VNTRUXM:user/release-keys
+
+# 🔐 Свойства для system.prop, важные для дешифровки
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.vendor.mtk_tee_gp_support=1 \
+    ro.hardware.kmsetkey=beanpod \
+    ro.hardware.gatekeeper=beanpod \
+    ro.vendor.mtk_microtrust_tee_support=1
+
+# 👉 Свойства для vendor.prop.
+# Найдите в стоковом /vendor/build.prop свойства, связанные с тачскрином,
+# и добавьте их сюда. Например:
+PRODUCT_VENDOR_PROPERTIES += \
+    ro.vendor.touch.some_setting=true \
+    persist.vendor.touch.some_other_setting=1
