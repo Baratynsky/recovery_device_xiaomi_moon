@@ -4,7 +4,6 @@
 $(call inherit-product, vendor/twrp/config/common.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/base.mk)
-$(call inherit-product, $(SRC_TARGET_DIR)/product/gsi/gsi_keys.mk)
 
 # Device identifier
 PRODUCT_DEVICE := moon
