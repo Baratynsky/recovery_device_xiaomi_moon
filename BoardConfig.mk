@@ -76,3 +76,12 @@ TW_INPUT_BLACKLIST := "hbtp_vm"
 # Vendor modules
 # BOARD_VENDOR_KERNEL_MODULES_LOAD := $(strip $(shell cat device/xiaomi/moon/modules.load))
 # BOARD_VENDOR_KERNEL_MODULES_BLOCKLIST_FILE := device/xiaomi/moon/modules.blocklist
+
+# Boot Control HAL для корректной работы с A/B слотами
+TARGET_BOOT_CONTROL_HALS := android.hardware.boot@1.2-mtkimpl
+
+# Дополнительные модули, которые нужно включить в рекавери
+TARGET_RECOVERY_DEVICE_MODULES := create_pl_dev
+
+# Кастомная библиотека инициализации для специфичных действий при загрузке
+TARGET_INIT_VENDOR_LIB := init_moon
