@@ -89,9 +89,8 @@ PRODUCT_PACKAGES += \
     android.hardware.health@2.1-impl.recovery \
     android.hardware.health@2.1-service.rc
 
-# Soong
-PRODUCT_SOONG_NAMESPACES += \
-    $(LOCAL_PATH)
+# Soong namespaces
+PRODUCT_SOONG_NAMESPACES += $(DEVICE_PATH)
 
 PRODUCT_PACKAGES += \
     create_pl_dev \
