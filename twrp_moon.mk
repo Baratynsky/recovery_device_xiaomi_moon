@@ -1,34 +1,18 @@
-#
-# Copyright 2024 The Android Open Source Project
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-#
-# Only the below variable(s) need to be changed!
-#
+# device/xiaomi/moon/twrp_moon.mk
 
-# Inherit from hardware-specific part of the product configuration
-$(call inherit-product, device/xiaomi/moon/device.mk)
-
-# Inherit any OrangeFox-specific settings
-#$(call inherit-product-if-exists, device/xiaomi/moon/fox_pond.mk)
-
-# Inherit some common TWRP stuff.
+# Source
 $(call inherit-product, vendor/twrp/config/common.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/base.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/gsi/gsi_keys.mk)
 
-## Device identifier. This must come after all inclusions
+# Device identifier
 PRODUCT_DEVICE := moon
-PRODUCT_NAME := twrp_moon
+PRODUCT_NAME := twrp_moon # <-- ИЗМЕНЕНО
 PRODUCT_BRAND := Redmi
-PRODUCT_MODEL := Redmi 13
+PRODUCT_MODEL := 24040RN64Y
 PRODUCT_MANUFACTURER := Xiaomi
+
+# Build Fingerprint
+PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+    ro.vendor.build.fingerprint=Redmi/moon_ru/moon:15/AP3A.240905.015.A2/OS2.0.5.0.VNTRUXM:user/release-keys
