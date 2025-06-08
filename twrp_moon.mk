@@ -8,7 +8,7 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/gsi/gsi_keys.mk)
 
 # Device identifier
 PRODUCT_DEVICE := moon
-PRODUCT_NAME := twrp_moon # <-- ИЗМЕНЕНО
+PRODUCT_NAME := twrp_moon
 PRODUCT_BRAND := Redmi
 PRODUCT_MODEL := 24040RN64Y
 PRODUCT_MANUFACTURER := Xiaomi
