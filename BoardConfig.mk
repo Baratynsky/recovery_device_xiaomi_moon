@@ -203,7 +203,8 @@ TWRP_INCLUDE_LOGCAT := true
 
 # Modules
 TW_LOAD_VENDOR_BOOT_MODULES := true
-TW_LOAD_VENDOR_MODULES := true
+TW_LOAD_VENDOR_MODULES := focaltech_tp.ko
+NEED_KERNEL_MODULE_RECOVERY := true
 TW_INPUT_DEVICE_PATH := "/dev/input/event4"
 
 # Maintainer
