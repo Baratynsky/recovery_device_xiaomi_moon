@@ -13,6 +13,7 @@ on init
 
     # LD_LIBRARY_PATH
     export LD_LIBRARY_PATH /system/lib:/system/lib64:/vendor/lib:/vendor/lib64:/vendor/lib64/hw:/system/lib64/hw
+    firmware_directories /etc/firmware/ /odm/firmware/ /vendor/firmware/ /firmware/image/
 
     # USB settings
     setprop sys.usb.configfs 1
