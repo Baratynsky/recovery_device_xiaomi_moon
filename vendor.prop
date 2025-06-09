@@ -1,2 +1,3 @@
 ro.vendor.display.touch.idle.enable=true
 ro.surface_flinger.set_touch_timer_ms=1100
+ro.vendor.display.type=lcd

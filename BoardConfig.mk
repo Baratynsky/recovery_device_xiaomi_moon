@@ -29,7 +29,7 @@ TARGET_2ND_CPU_VARIANT := $(TARGET_CPU_VARIANT)
 TARGET_2ND_CPU_VARIANT_RUNTIME := $(TARGET_CPU_VARIANT)
 
 # Assertation
-TARGET_OTA_ASSERT_DEVICE := moon,moon_gl,moon_p,tides,tides_gl,tides_p
+TARGET_OTA_ASSERT_DEVICE := moon,moon_gl,moon_p,moon_ru,tides,tides_gl,tides_p
 
 # Bootloader
 TARGET_BOOTLOADER_BOARD_NAME := moon
@@ -203,7 +203,7 @@ TWRP_INCLUDE_LOGCAT := true
 
 # Modules
 TW_LOAD_VENDOR_BOOT_MODULES := true
-TW_LOAD_VENDOR_MODULES := "hwmon.ko mtk_ppm_v3.ko alspshub.ko alsps_common.ko tpd_notify.ko xiaomi_touch.ko focaltech_tp.ko"
+TW_LOAD_VENDOR_MODULES := true
 TW_INPUT_DEVICE_PATH := "/dev/input/event4"
 
 # Maintainer
