@@ -28,7 +28,7 @@ $(call inherit-product, vendor/twrp/config/common.mk)
 
 ## Device identifier. This must come after all inclusions
 PRODUCT_DEVICE := moon
-PRODUCT_NAME := moon_gl
+PRODUCT_NAME := twrp_moon
 PRODUCT_BRAND := Redmi
 PRODUCT_MODEL := 24040RN64Y
 PRODUCT_MANUFACTURER := Xiaomi
