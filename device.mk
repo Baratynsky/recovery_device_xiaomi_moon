@@ -61,10 +61,10 @@ AB_OTA_POSTINSTALL_CONFIG += \
     POSTINSTALL_OPTIONAL_system=true
 
 # VNDK
-PRODUCT_TARGET_VNDK_VERSION := 35
+PRODUCT_TARGET_VNDK_VERSION := 34
 
 # API
-PRODUCT_SHIPPING_API_LEVEL := 31
+PRODUCT_SHIPPING_API_LEVEL := 32
 
 # Boot control HAL
 PRODUCT_PACKAGES += \
@@ -81,7 +81,7 @@ PRODUCT_PACKAGES += \
 # Fastbootd
 TW_INCLUDE_FASTBOOTD := true
 PRODUCT_PACKAGES += \
-    android.hardware.fastboot@1.0-impl-mock \
+    android.hardware.fastboot@1.1-impl-mock \
     fastbootd
 
 # Health HAL
@@ -98,16 +98,3 @@ PRODUCT_SOONG_NAMESPACES += \
 PRODUCT_PACKAGES += \
     create_pl_dev \
     create_pl_dev.recovery
-
-# Additional binaries & libraries needed for recovery
-TARGET_RECOVERY_DEVICE_MODULES += \
-    libkeymaster4 \
-    libkeymaster41 \
-    libpuresoftkeymasterdevice \
-    libkeymaster_messages.vendor
-
-TW_RECOVERY_ADDITIONAL_RELINK_LIBRARY_FILES += \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libkeymaster4.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libkeymaster41.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libpuresoftkeymasterdevice.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libkeymaster_messages.so

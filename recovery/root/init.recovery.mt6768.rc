@@ -7,49 +7,41 @@ on early-init
     setprop vendor.all.modules.ready 1
 
 on init
-    export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw:/system/lib64/hw
+    # SELinux permissive
+    write /sys/fs/selinux/enforce 0
+	write /dev/kmsg "Init recovery started"
 
+    # LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH /system/lib:/system/lib64:/vendor/lib:/vendor/lib64:/vendor/lib64/hw:/system/lib64/hw
+
+    # USB settings
     setprop sys.usb.configfs 1
     setprop sys.usb.controller "musb-hdrc"
     setprop sys.usb.ffs.aio_compat 0
 
-    chmod 0660 /dev/bus/i2c-0
-    chown root root /dev/bus/i2c-0
-
-    chmod 0660 /sys/class/gpio/export
-    chmod 0660 /sys/class/gpio/unexport
-    chown root root /sys/class/gpio/export
-    chown root root /sys/class/gpio/unexport
-
-    chmod 0660 /sys/class/regulator/
-    chown root root /sys/class/regulator/
-
 on post-fs
+    # Start TEE-related services
+    start vendor.mrmd
+    start beanpod_check_keybox_service
     start create_pl_dev
 
-    write /sys/class/regulator/regulator.29/enabled 1
-    write /sys/class/regulator/regulator.39/enabled 1
-
-    write /sys/class/gpio/gpio152/value 0
-    sleep 0.1
-    write /sys/class/gpio/gpio152/value 1
-    sleep 0.1
-
-    chmod 0660 /sys/class/gpio/gpio42/value
-    chown root root /sys/class/gpio/gpio42/value
-
 on boot
+    # Touch & display permissions
     chown system system /dev/xiaomi-touch
     chmod 0664 /dev/xiaomi-touch
     chown system system /sys/class/touch/tp_dev/fod_status
     chmod 0664 /sys/class/touch/tp_dev/fod_status
-	
-	chown system system /sys/class/touch/touch_dev/palm_sensor
+    chown system system /sys/class/touch/touch_dev/palm_sensor
     chown system system /proc/touchscreen/proximity_switch
     chown system system /proc/touchscreen/store_data_proximity
     chmod 0664 /sys/class/touch/touch_dev/palm_sensor
     chmod 0664 /proc/touchscreen/proximity_switch
     chmod 0664 /proc/touchscreen/store_data_proximity
+
+    # Start essential HALs
+    start boot-hal-1-2
+    setprop sys.usb.config adb
+    start health-hal-2-1
 
 on late-fs
     exec_start wait_for_keymaster
@@ -58,11 +50,60 @@ on late-fs
 on property:ro.crypto.state=encrypted && property:ro.crypto.type=file
     install_keyring
 
-service vendor.gatekeeper-1-0 /vendor/bin/hw/android.hardware.gatekeeper@1.0-service
-    interface android.hardware.gatekeeper@1.0::IGatekeeper default
+on property:hwservicemanager.ready=true
+    # Start all required hardware services here
+    start vendor.gralloc-4-0
+    start vendor.hwcomposer-2-1
+    start vendor.sensors-hal-2-0-multihal
+    start vendor.keymaster-4-1-beanpod
+    start vendor.gatekeeper-1-0
+    start health-hal-2-1
+
+on property:twrp.modules.loaded=true
+    start vendor.vibrator-default
+
+# Stop services when decryption is done or not needed
+on property:ro.crypto.state=unsupported
+    stop teei_daemon
+    stop vendor.mrmd
+    stop vendor.keymaster-4-1-beanpod
+    stop vendor.gatekeeper-1-0
+
+on property:ro.crypto.state=unencrypted
+    stop teei_daemon
+    stop vendor.mrmd
+    stop vendor.keymaster-4-1-beanpod
+    stop vendor.gatekeeper-1-0
+
+on property:twrp.decrypt.done=true
+    stop teei_daemon
+    stop vendor.mrmd
+    stop vendor.keymaster-4-1-beanpod
+    stop vendor.gatekeeper-1-0
+
+on property:crypto.ready=0
+    stop teei_daemon
+    stop vendor.mrmd
+    stop vendor.keymaster-4-1-beanpod
+    stop vendor.gatekeeper-1-0
+
+# --------------------------------- #
+# SERVICE DEFINITIONS               #
+# --------------------------------- #
+
+# TEE Services
+service vendor.mrmd /vendor/bin/mrmd_isee
+    class hal
+    user root
+    group root shell
+    seclabel u:r:recovery:s0
+
+# Decryption HALs
+service beanpod_check_keybox_service /vendor/bin/bp_kmsetkey_ca -c
+    class late_start
     user root
     group root
-    disabled
+    oneshot
     seclabel u:r:recovery:s0
 
 service vendor.keymaster-4-1-beanpod /vendor/bin/hw/android.hardware.keymaster@4.1-service.beanpod
@@ -74,37 +115,49 @@ service vendor.keymaster-4-1-beanpod /vendor/bin/hw/android.hardware.keymaster@4
     oneshot
     seclabel u:r:recovery:s0
 
-on property:crypto.ready=1
-    start vendor.keymaster-4-1-beanpod
+service vendor.gatekeeper-1-0 /vendor/bin/hw/android.hardware.gatekeeper@1.0-service
+    interface android.hardware.gatekeeper@1.0::IGatekeeper default
+    user root
+    group root
+    disabled
+    seclabel u:r:recovery:s0
 
-on property:hwservicemanager.ready=true
-    start vendor.keymaster-4-1-beanpod
-    start vendor.gatekeeper-1-0
+# Graphics HALs
+service vendor.gralloc-4-0 /vendor/bin/hw/android.hardware.graphics.allocator@4.0-service-mediatek
+    class hal animation
+    interface android.hardware.graphics.allocator@4.0::IAllocator default
+    user root
+    group graphics drmrpc
+    capabilities SYS_NICE
+    onrestart restart surfaceflinger
+    seclabel u:r:recovery:s0	
 
-on property:ro.crypto.state=unsupported
-    stop teei_daemon
-    stop vendor.keymaster-4-1-beanpod
-    stop vendor.gatekeeper-1-0
+service vendor.hwcomposer-2-1 /vendor/bin/hw/android.hardware.graphics.composer@2.1-service
+    interface android.hardware.graphics.composer@2.1::IComposer default
+    interface vendor.mediatek.hardware.composer_ext@1.0::IComposerExt default
+    class hal animation
+    user root
+    group graphics drmrpc
+    capabilities SYS_NICE
+    onrestart restart surfaceflinger
+    writepid /dev/cpuset/system-background/tasks
+    seclabel u:r:recovery:s0	
 
-on property:ro.crypto.state=unencrypted
-    stop teei_daemon
-    stop vendor.keymaster-4-1-beanpod
-    stop vendor.gatekeeper-1-0
+# Health HAL
+service health-hal-2-1 /vendor/bin/hw/android.hardware.health@2.1-service
+    class hal charger
+    user root
+    group root
+    capabilities WAKE_ALARM BLOCK_SUSPEND
+    file /dev/kmsg w
+    seclabel u:r:recovery:s0	
 
-on property:twrp.decrypt.done=true
-    stop teei_daemon
-    stop vendor.keymaster-4-1-beanpod
-    stop vendor.gatekeeper-1-0
-
-on property:crypto.ready=0
-    stop teei_daemon
-    stop vendor.keymaster-4-1-beanpod
-    stop vendor.gatekeeper-1-0
-
-on property:twrp.modules.loaded=true
-    start vendor.vibrator-default
-
-on boot
-    start boot-hal-1-2
-    setprop sys.usb.config adb
-    start health-hal-2-1
+# Sensors HAL
+service vendor.sensors-hal-2-0-multihal /vendor/bin/hw/android.hardware.sensors@2.0-service.multihal-mediatek
+    class hal
+    user root
+    group root wakelock context_hub
+    writepid /dev/cpuset/system-background/tasks
+    capabilities BLOCK_SUSPEND
+    rlimit rtprio 10 10
+    seclabel u:r:recovery:s0
