@@ -111,6 +111,7 @@ BOARD_USES_MTK_HARDWARE := true
 
 # Properties
 TARGET_SYSTEM_PROP += $(DEVICE_PATH)/system.prop
+TARGET_VENDOR_PROP += $(DEVICE_PATH)/vendor.prop
 
 # System as root
 BOARD_BUILD_SYSTEM_ROOT_IMAGE := false
